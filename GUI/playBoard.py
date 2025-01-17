@@ -1,11 +1,13 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from copy import deepcopy
+from collections import deque
 
 
 class Board:
     def __init__(self):
         # Declares all variables + assests
+
         self.declarations()
 
         # Places all variables + assets on game board/root window
@@ -15,23 +17,33 @@ class Board:
 
     def declarations(self):
         # Var declarations
+        self.states = {}
+        self.dq = deque()
         self.bg1 = "#39009C"
         self.bg2 = "#250064"
+        self.path = "GUI\\Imgs\\"
+
+        self.root = Tk()
 
         # Image declarations
-        self.undo = ImageTk.PhotoImage(
-            Image.open('imgs\\undo.png').resize((32, 32)))
-        self.hint = ImageTk.PhotoImage(
-            Image.open('imgs\\hint.png').resize((32, 32)))
-        self.icon = ImageTk.PhotoImage(Image.open('imgs\\icon.jpg'))
+        self.imgUndo = ImageTk.PhotoImage(
+            Image.open(self.path + 'undo.png').resize((32, 32)))
+        self.imgHint = ImageTk.PhotoImage(
+            Image.open(self.path + 'hint.png').resize((32, 32)))
+        self.imgIcon = ImageTk.PhotoImage(
+            Image.open(self.path + 'icon.jpg'))
+        self.imgBack = ImageTk.PhotoImage(
+            Image.open(self.path + 'back.png').resize((32, 32)))
 
         # Root asset declarations
-        self.root = Tk()
-        self.bUndo = Button(self.root, image=self.undo,
+        self.bUndo = Button(self.root, image=self.imgUndo,
                             anchor='e', command=self.undo)
-        self.bHint = Button(self.root, image=self.hint, command=self.hint)
+        self.bHint = Button(self.root, image=self.imgHint, command=self.hint)
         self.bCheck = Button(self.root, text="Check",
                              command=self.check, width=35, height=2)
+        self.bBack = Button(self.root, image=self.imgBack, command=self.back)
+        self.bClear = Button(self.root, text="Clear",
+                             command=self.clear, width=25)
 
         # Game board asset declaration
         self.board = LabelFrame(self.root, padx=20, pady=20)
@@ -39,27 +51,37 @@ class Board:
 
     def placements(self):
         # Icon + title setup
-        self.root.iconphoto(False, self.icon)
+        self.root.iconphoto(False, self.imgIcon)
         self.root.title('Board')
 
         # Root placements
-        self.bUndo.grid(row=0, column=0)
+        self.bUndo.grid(row=0, column=3)
         self.bHint.grid(row=0, column=4)
         self.bCheck.grid(row=2, column=1)
+        self.bBack.grid(row=0, column=0)
+        self.bClear.grid(row=0, column=1, columnspan=2)
 
         # Game board placements
         self.board.grid(row=1, column=1, padx=15, pady=15)
         # Places grid squares starting from 0,0 in the grid
         self.place_grid(0, 0)
 
-    def undo(self):
-        pass
-
+    # Need to do algorithim before this
     def hint(self):
         pass
 
-    # Resets all game squares to origonal colour
+    # Need to do after main page
+    def back(self):
+        pass
+
     def clear(self):
+        for i in range(9):
+            for j in range(9):
+                # I will need to update this to not delete letters part of the actual sudkou
+                self.grid[i][j].delete(0, END)
+
+    # Resets all game squares to origonal colour
+    def colour_clear(self):
         first = True
         for i in range(9):
             for j in range(9):
@@ -73,7 +95,7 @@ class Board:
         cols = [{} for _ in range(9)]
         squares = [[{} for _ in range(3)]for __ in range(3)]
 
-        self.clear()
+        self.colour_clear()
 
         for i in range(9):
             for j in range(9):
@@ -134,18 +156,36 @@ class Board:
         grid.append([s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()])
 
         # Sets up binds in a way where we get the index of the location the event was trigered
-        # They are used to maintain a stack of alterations for undo function
         for i in range(9):
             for j in range(9):
+                grid[i][j].bind('<Button>', lambda event,
+                                x=i, y=j: self.record_state(x, y))
                 grid[i][j].bind('<KeyRelease>', lambda event,
-                                x=i, y=j: self.maintainStack(x, y))
+                                x=i, y=j: self.maintain_stack(x, y))
 
         return grid
 
-    def maintainStack(self, x, y):
-        print(x)
-        print(y)
-        # print(self.grid[x][y].get())
+    # Records state before being altered to allow for undos
+    def record_state(self, x, y):
+        self.states[(x, y)] = self.grid[x][y].get()
+
+    # Adds each move to a deqeue to allow for undos
+    def maintain_stack(self, x, y):
+        prev = self.states.get((x, y), "")
+        self.dq.append((x, y, prev))
+
+        # Saves memory by not storing every move ever made
+        while len(self.dq) > 100:
+            self.dq.popleft()
+
+    def undo(self):
+        print(1)
+        if len(self.dq) == 0:
+            return
+
+        x, y, prev = self.dq.pop()
+        self.grid[x][y].delete(0, END)
+        self.grid[x][y].insert(0, prev)
 
     # Places the each element of the grid in the game board
     def place_grid(self, sr, sc):  # Start row, start column
@@ -160,3 +200,9 @@ class Board:
 
 
 board = Board()
+
+
+# TODO
+# Update program to work with set grid - new colour for set grid, update initalise function, update clear function
+# Add link back to home page
+# Add hint
