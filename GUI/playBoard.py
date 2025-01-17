@@ -5,32 +5,19 @@ from copy import deepcopy
 
 class Board:
     def __init__(self):
-        self.bg1 = "#39009C"
-        self.bg2 = "#250064"
+        # Declares all variables + assests
+        self.declarations()
 
-        self.root = Tk()
-
-        # Declares images
-        self.images()
-
-        # Declares assets used in the root
-        self.root_asset_declaration()
-
-        # Root asset placement
-        self.root_asset_placement()
-
-        # board asset initalisation
-        self.board_asset_declaration()
-
-        # Board asset placement
-        self.board_asset_placement()
-
-        # Icon + title
-        self.sys_init()
+        # Places all variables + assets on game board/root window
+        self.placements()
 
         self.root.mainloop()
 
-    def images(self):
+    def declarations(self):
+        # Var declarations
+        self.bg1 = "#39009C"
+        self.bg2 = "#250064"
+
         # Image declarations
         self.undo = ImageTk.PhotoImage(
             Image.open('imgs\\undo.png').resize((32, 32)))
@@ -38,30 +25,32 @@ class Board:
             Image.open('imgs\\hint.png').resize((32, 32)))
         self.icon = ImageTk.PhotoImage(Image.open('imgs\\icon.jpg'))
 
-    def root_asset_declaration(self):
-
+        # Root asset declarations
+        self.root = Tk()
         self.bUndo = Button(self.root, image=self.undo,
                             anchor='e', command=self.undo)
         self.bHint = Button(self.root, image=self.hint, command=self.hint)
         self.bCheck = Button(self.root, text="Check",
                              command=self.check, width=35, height=2)
 
-    def root_asset_placement(self):
+        # Game board asset declaration
+        self.board = LabelFrame(self.root, padx=20, pady=20)
+        self.grid = self.initalise_grid()
+
+    def placements(self):
+        # Icon + title setup
+        self.root.iconphoto(False, self.icon)
+        self.root.title('Board')
+
+        # Root placements
         self.bUndo.grid(row=0, column=0)
         self.bHint.grid(row=0, column=4)
         self.bCheck.grid(row=2, column=1)
 
-    def board_asset_declaration(self):
-        self.board = LabelFrame(self.root, padx=20, pady=20)
-        self.grid = self.initalise_grid()
-
-    def board_asset_placement(self):
+        # Game board placements
         self.board.grid(row=1, column=1, padx=15, pady=15)
+        # Places grid squares starting from 0,0 in the grid
         self.place_grid(0, 0)
-
-    def sys_init(self):
-        self.root.iconphoto(False, self.icon)
-        self.root.title('Board')
 
     def undo(self):
         pass
@@ -69,6 +58,7 @@ class Board:
     def hint(self):
         pass
 
+    # Resets all game squares to origonal colour
     def clear(self):
         first = True
         for i in range(9):
@@ -76,6 +66,7 @@ class Board:
                 self.grid[i][j].config(bg=self.bg1 if first else self.bg2)
                 first = not first
 
+    # Finds squares that are not valid, highlights them red
     def check(self):
         board = [[""]*9 for _ in range(9)]
         rows = [{} for _ in range(9)]
@@ -120,6 +111,7 @@ class Board:
                     self.grid[x][y].config(bg='red')
                     self.grid[i][j].config(bg='red')
 
+    # Declares all grid square. Uses factory pattern to ensure all instances are unique.
     def initalise_grid(self):
         def s1():
             return Entry(self.board, font=('Helvetica', 50),
@@ -133,6 +125,7 @@ class Board:
         # Row style 2 - [s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2()]
 
         grid = []
+
         # First 8 rows
         for i in range(4):
             grid.append([s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()])
@@ -140,6 +133,8 @@ class Board:
         # Last row
         grid.append([s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()])
 
+        # Sets up binds in a way where we get the index of the location the event was trigered
+        # They are used to maintain a stack of alterations for undo function
         for i in range(9):
             for j in range(9):
                 grid[i][j].bind('<KeyRelease>', lambda event,
@@ -152,6 +147,7 @@ class Board:
         print(y)
         # print(self.grid[x][y].get())
 
+    # Places the each element of the grid in the game board
     def place_grid(self, sr, sc):  # Start row, start column
         n = 9
         r, c = sr, sc
