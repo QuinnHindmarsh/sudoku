@@ -2,11 +2,14 @@ from tkinter import *
 from PIL import ImageTk, Image
 from copy import deepcopy
 from collections import deque
+from random import randint
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, BOARD, SOLUTION):
         # Declares all variables + assests
+        self.BOARD = BOARD
+        self.SOLUTION = SOLUTION
 
         self.declarations()
 
@@ -21,7 +24,8 @@ class Board:
         self.dq = deque()
         self.bg1 = "#39009C"
         self.bg2 = "#250064"
-        self.path = "GUI\\Imgs\\"
+        self.readOnlyColour = "#03452a"
+        self.path = "Imgs\\"
 
         self.root = Tk()
 
@@ -68,9 +72,19 @@ class Board:
 
     # Need to do algorithim before this
     def hint(self):
-        pass
+        board = self.get_board()
+        i = randint(0, 8)
+        j = randint(0, 8)
+
+        while board[i][j] != '':
+            i = randint(0, 8)
+            j = randint(0, 8)
+
+        self.grid[i][j].insert(0, self.SOLUTION[i][j])
+        self.grid[i][j].config(state='readonly')
 
     # Need to do after main page
+
     def back(self):
         pass
 
@@ -88,18 +102,21 @@ class Board:
                 self.grid[i][j].config(bg=self.bg1 if first else self.bg2)
                 first = not first
 
+    def get_board(self):
+        board = [[""]*9 for _ in range(9)]
+        for i in range(9):
+            for j in range(9):
+                board[i][j] = self.grid[i][j].get()
+        return board
+
     # Finds squares that are not valid, highlights them red
     def check(self):
-        board = [[""]*9 for _ in range(9)]
         rows = [{} for _ in range(9)]
         cols = [{} for _ in range(9)]
         squares = [[{} for _ in range(3)]for __ in range(3)]
 
         self.colour_clear()
-
-        for i in range(9):
-            for j in range(9):
-                board[i][j] = self.grid[i][j].get()
+        board = self.get_board()
 
         for i in range(9):
             for j in range(9):
@@ -133,35 +150,41 @@ class Board:
                     self.grid[x][y].config(bg='red')
                     self.grid[i][j].config(bg='red')
 
+        if board == self.SOLUTION:
+            print(1)
+            # Bring popup screen with option to go back to main menue
+
     # Declares all grid square. Uses factory pattern to ensure all instances are unique.
     def initalise_grid(self):
         def s1():
             return Entry(self.board, font=('Helvetica', 50),
-                         width=2, fg='white', bg=self.bg1)
+                         width=2, fg='white', bg=self.bg1, readonlybackground=self.readOnlyColour)
 
         def s2():
             return Entry(self.board, font=('Helvetica', 50),
-                         width=2, fg='white', bg=self.bg2)
+                         width=2, fg='white', bg=self.bg2, readonlybackground=self.readOnlyColour)
 
-        # Row style 1 - [s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()]
-        # Row style 2 - [s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2()]
+        # # Row style 1 - [s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()]
+        # # Row style 2 - [s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2()]
 
-        grid = []
-
-        # First 8 rows
-        for i in range(4):
-            grid.append([s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()])
-            grid.append([s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2()])
-        # Last row
-        grid.append([s1(), s2(), s1(), s2(), s1(), s2(), s1(), s2(), s1()])
+        grid = [[None]*9 for _ in range(9)]
+        first_colour = True
 
         # Sets up binds in a way where we get the index of the location the event was trigered
         for i in range(9):
             for j in range(9):
-                grid[i][j].bind('<Button>', lambda event,
-                                x=i, y=j: self.record_state(x, y))
-                grid[i][j].bind('<KeyRelease>', lambda event,
-                                x=i, y=j: self.maintain_stack(x, y))
+                grid[i][j] = s1() if first_colour else s2()
+                first_colour = not first_colour
+
+                if self.BOARD[i][j] != '.':
+                    grid[i][j].insert(0, self.BOARD[i][j])
+                    grid[i][j].config(state='readonly')
+
+                else:
+                    grid[i][j].bind('<Button>', lambda event,
+                                    x=i, y=j: self.record_state(x, y))
+                    grid[i][j].bind('<KeyRelease>', lambda event,
+                                    x=i, y=j: self.maintain_stack(x, y))
 
         return grid
 
@@ -179,7 +202,6 @@ class Board:
             self.dq.popleft()
 
     def undo(self):
-        print(1)
         if len(self.dq) == 0:
             return
 
@@ -199,10 +221,14 @@ class Board:
             r += 1
 
 
-board = Board()
+b = [["5", "3", ".", ".", "7", ".", ".", ".", "."], ["6", ".", ".", "1", "9", "5", ".", ".", "."], [".", "9", "8", ".", ".", ".", ".", "6", "."], ["8", ".", ".", ".", "6", ".", ".", ".", "3"], ["4", ".", ".", "8",
+                                                                                                                                                                                                  ".", "3", ".", ".", "1"], ["7", ".", ".", ".", "2", ".", ".", ".", "6"], [".", "6", ".", ".", ".", ".", "2", "8", "."], [".", ".", ".", "4", "1", "9", ".", ".", "5"], [".", ".", ".", ".", "8", ".", ".", "7", "9"]]
+s = [["5", "3", "4", "6", "7", "8", "9", "1", "2"], ["6", "7", "2", "1", "9", "5", "3", "4", "8"], ["1", "9", "8", "3", "4", "2", "5", "6", "7"], ["8", "5", "9", "7", "6", "1", "4", "2", "3"], ["4", "2", "6", "8",
+                                                                                                                                                                                                  "5", "3", "7", "9", "1"], ["7", "1", "3", "9", "2", "4", "8", "5", "6"], ["9", "6", "1", "5", "3", "7", "2", "8", "4"], ["2", "8", "7", "4", "1", "9", "6", "3", "5"], ["3", "4", "5", "2", "8", "6", "1", "7", "9"]]
+
+board = Board(b, s)
 
 
 # TODO
-# Update program to work with set grid - new colour for set grid, update initalise function, update clear function
 # Add link back to home page
-# Add hint
+# Win popup
