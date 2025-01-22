@@ -1,6 +1,5 @@
 from tkinter import *
 from PIL import ImageTk, Image
-from copy import deepcopy
 from collections import deque
 from random import randint
 

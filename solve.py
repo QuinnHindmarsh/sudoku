@@ -1,8 +1,17 @@
+
+# Do singleton. add driver code
+import time
+from copy import deepcopy
+
+
 class Solve:
-    def solveSudoku(self, board: List[List[str]]) -> None:
-        rows = [set() for _ in range(9)]
-        cols = [set() for _ in range(9)]
-        sqr = [[set() for _ in range(3)] for _ in range(3)]
+    def solveSudoku(self, board) -> None:
+        self.solved = False
+        self.rows = [set() for _ in range(9)]
+        self.cols = [set() for _ in range(9)]
+        self.sqr = [[set() for _ in range(3)] for _ in range(3)]
+        self.sol = None
+        self.board = board
 
         # Populates sets
         for i in range(9):
@@ -11,44 +20,88 @@ class Solve:
                 if n == '.':
                     continue
 
-                rows[i].add(n)
-                cols[j].add(n)
-                sqr[i//3][j//3].add(n)
+                self.rows[i].add(n)
+                self.cols[j].add(n)
+                self.sqr[i//3][j//3].add(n)
 
-        def candidates(i, j):
-            cand = []
-            for k in range(1, 10):
-                s = str(k)
-                if s not in rows[i] and s not in cols[j] and s not in sqr[i//3][j//3]:
-                    cand.append(s)
+        return self.backtrack()
 
-            return cand
+    def candidates(self, i, j):
+        cand = []
+        for k in range(1, 10):
+            s = str(k)
+            if s not in self.rows[i] and s not in self.cols[j] and s not in self.sqr[i//3][j//3]:
+                cand.append(s)
 
-        def backtrack(i=0, j=0):
-            while i < len(board) and board[i][j] != '.':
-                j += 1
-                if j == len(board):
-                    j = 0
-                    i += 1
+        return cand
 
-            if i == len(board):
-                return True
+    def backtrack(self, i=0, j=0):
 
-            cand = candidates(i, j)
+        while i < 9 and self.board[i][j] != '.':
+            j += 1
+            if j == 9:
+                j = 0
+                i += 1
 
-            for c in cand:
-                board[i][j] = c
-                rows[i].add(c)
-                cols[j].add(c)
-                sqr[i//3][j//3].add(c)
+        if i == 9:
+            if self.solved:
+                return False
+            self.sol = deepcopy(self.board)
+            self.solved = True
+            return True
 
-                if backtrack(i, j):
-                    return True
+        cand = self.candidates(i, j)
 
-                board[i][j] = '.'
-                rows[i].remove(c)
-                cols[j].remove(c)
-                sqr[i//3][j//3].remove(c)
-            return False
+        for c in cand:
+            self.board[i][j] = c
+            self.rows[i].add(c)
+            self.cols[j].add(c)
+            self.sqr[i//3][j//3].add(c)
 
-        return backtrack(0, 0)
+            if not self.backtrack(i, j):
+                return (False, self.sol)
+
+            self.board[i][j] = '.'
+            self.rows[i].remove(c)
+            self.cols[j].remove(c)
+            self.sqr[i//3][j//3].remove(c)
+        return (self.solved, self.sol)
+
+
+solver = Solve()
+# Hard board from ADM
+
+start_time = time.time()
+
+print(solver.solveSudoku(b))
+print("Process finished --- %s seconds ---" % (time.time() - start_time))
+
+
+b = [
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+    ['.', '.', '.',     '.', '.', '.',    '.', '.', '.']
+]
+
+# Hard board from ADM
+b = [
+    ['.', '.', '.',     '.', '.', '.',    '.', '1', '2'],
+    ['.', '.', '.',     '.', '3', '5',    '.', '.', '.'],
+    ['.', '.', '.',     '6', '.', '.',    '.', '7', '.'],
+
+    ['7', '.', '.',     '.', '.', '.',    '3', '.', '.'],
+    ['.', '.', '.',     '4', '.', '.',    '8', '.', '.'],
+    ['1', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+
+    ['.', '.', '.',     '1', '2', '.',    '.', '.', '.'],
+    ['.', '8', '.',     '.', '.', '.',    '.', '4', '.'],
+    ['.', '5', '.',     '.', '.', '.',    '6', '.', '.']
+]
