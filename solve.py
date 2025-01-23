@@ -1,4 +1,3 @@
-
 # Do singleton. add driver code
 import time
 from copy import deepcopy
@@ -34,23 +33,42 @@ class Solver:
                 cand.append(s)
 
         return cand
+    
+    def check_solved(self):
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] == '.':
+                    return False
+        return True
 
     def backtrack(self, i=0, j=0):
+        i = j = None
+        minCands = 10
+        cand = []
 
-        while i < 9 and self.board[i][j] != '.':
-            j += 1
-            if j == 9:
-                j = 0
-                i += 1
+        # Choses most constrained square
+        for ii in range(8):
+            for jj in range(8):
+                if self.board[ii][jj] == '.':
+                    temp_cand = self.candidates(ii,jj)
+                    if len(temp_cand) < minCands:
+                        minCands = len(temp_cand)
+                        cand = temp_cand
+                        # Not possible to solve
+                        if minCands == 0:
+                            break
 
-        if i == 9:
-            if self.solved:
-                return False
-            self.sol = deepcopy(self.board)
-            self.solved = True
-            return (True, self.board)
+                        i = ii
+                        j = jj
 
-        cand = self.candidates(i, j)
+        if i == None:
+            if self.check_solved():
+                if self.solved:
+                    return False
+                self.sol = deepcopy(self.board)
+                self.solved = True
+                return (True, self.board)
+            return (True, self.sol)
 
         for c in cand:
             self.board[i][j] = c

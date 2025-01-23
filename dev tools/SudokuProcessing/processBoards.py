@@ -23,9 +23,12 @@ with open('dev tools\\SudokuProcessing\\sudoku.csv', 'r') as boards:
     i = 0
     # Skips first line
     next(boards)
-
+    i = 0
     for line in boards:
         processedBoards.append(make_board(line[0]))
+        i += 1
+        if i > 100000:
+            break
 print("Process finished --- %s seconds ---" % (time.time() - start_time))
 
 with open('formatedBoards.py', 'w') as formated:
