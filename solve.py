@@ -1,16 +1,18 @@
-# Do singleton. add driver code
-import time
+from time import time
 from copy import deepcopy
 
-
+# Edits board in memory
 class Solver:
-    def solveSudoku(self, board) -> None:
+    def solveSudoku(self, board, maxTime=float('inf')) -> None:
         self.solved = False
         self.rows = [set() for _ in range(9)]
         self.cols = [set() for _ in range(9)]
         self.sqr = [[set() for _ in range(3)] for _ in range(3)]
         self.sol = None
         self.board = board
+        # I will use for timeouts later
+        self.startTime = time()
+        self.maxTime = maxTime
 
         # Populates sets
         for i in range(9):
@@ -18,6 +20,9 @@ class Solver:
                 n = board[i][j]
                 if n == '.':
                     continue
+
+                if n in self.rows[i] or n in self.cols[j] or n in self.sqr[i//3][j//3]:
+                    return (False, None)
 
                 self.rows[i].add(n)
                 self.cols[j].add(n)
@@ -42,34 +47,23 @@ class Solver:
         return True
 
     def backtrack(self, i=0, j=0):
-        i = j = None
-        minCands = 10
-        cand = []
+        if time() - self.startTime > self.maxTime:
+            return (False, self.sol)
 
-        # Choses most constrained square
-        for ii in range(8):
-            for jj in range(8):
-                if self.board[ii][jj] == '.':
-                    temp_cand = self.candidates(ii,jj)
-                    if len(temp_cand) < minCands:
-                        minCands = len(temp_cand)
-                        cand = temp_cand
-                        # Not possible to solve
-                        if minCands == 0:
-                            break
+        while i < 9 and self.board[i][j] != '.':
+            j += 1
+            if j == 9:
+                j = 0
+                i += 1
 
-                        i = ii
-                        j = jj
+        if i == 9:
+            if self.solved:
+                return False
+            self.sol = deepcopy(self.board)
+            self.solved = True
+            return (True, self.board)
 
-        if i == None:
-            if self.check_solved():
-                if self.solved:
-                    return False
-                self.sol = deepcopy(self.board)
-                self.solved = True
-                return (True, self.board)
-            return (True, self.sol)
-
+        cand = self.candidates(i, j)
         for c in cand:
             self.board[i][j] = c
             self.rows[i].add(c)
@@ -87,22 +81,26 @@ class Solver:
 
 
 # solver = Solver()
-# start_time = time.time()
-
-# b = [
-#     ['.', '.', '.',     '.', '.', '.',    '.', '1', '2'],
-#     ['.', '.', '.',     '.', '3', '5',    '.', '.', '.'],
-#     ['.', '.', '.',     '6', '.', '.',    '.', '7', '.'],
-
-#     ['7', '.', '.',     '.', '.', '.',    '3', '.', '.'],
-#     ['.', '.', '.',     '4', '.', '.',    '8', '.', '.'],
-#     ['1', '.', '.',     '.', '.', '.',    '.', '.', '.'],
-
-#     ['.', '.', '.',     '1', '2', '.',    '.', '.', '.'],
-#     ['.', '8', '.',     '.', '.', '.',    '.', '4', '.'],
-#     ['.', '5', '.',     '.', '.', '.',    '6', '.', '.']
-# ]
+# start_time = time()
 
 
-# print(solver.solveSudoku(b))
-# print("Process finished --- %s seconds ---" % (time.time() - start_time))
+# b =  [
+#             ['.', '.', '.',     '.', '.', '.',    '.', '1', '2'],
+#             ['.', '.', '.',     '.', '3', '5',    '.', '.', '.'],
+#             ['.', '.', '.',     '6', '.', '.',    '.', '7', '.'],
+
+#             ['7', '.', '.',     '.', '.', '.',    '3', '.', '.'],
+#             ['.', '.', '.',     '4', '.', '.',    '8', '.', '.'],
+#             ['1', '.', '.',     '.', '.', '.',    '.', '.', '.'],
+
+#             ['.', '.', '.',     '1', '2', '.',    '.', '.', '.'],
+#             ['.', '8', '.',     '.', '.', '.',    '.', '4', '.'],
+#             ['.', '5', '.',     '.', '.', '.',    '6', '.', '.']
+#         ]
+
+
+# print(solver.solveSudoku(b,maxTime=30))
+# print("Process finished --- %s seconds ---" % (time() - start_time))
+
+# #TODO 
+# Singleton pattern
