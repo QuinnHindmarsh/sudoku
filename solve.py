@@ -1,6 +1,6 @@
 from time import time
 from copy import deepcopy
-
+from pprint import pp
 # Edits board in memory
 class Solver:
     def solveSudoku(self, board, maxTime=float('inf')) -> None:
@@ -22,7 +22,7 @@ class Solver:
                     continue
 
                 if n in self.rows[i] or n in self.cols[j] or n in self.sqr[i//3][j//3]:
-                    return (False, None)
+                    return (False, None, False)
 
                 self.rows[i].add(n)
                 self.cols[j].add(n)
@@ -98,9 +98,23 @@ class Solver:
 #             ['.', '5', '.',     '.', '.', '.',    '6', '.', '.']
 #         ]
 
+# b = [['.', '.', '1', '9', '.', '.', '.', '.', '.'],
+#  ['.', '.', '.', '.', '.', '.', '5', '.', '7'],
+#  ['3', '.', '8', '.', '.', '.', '.', '.', '.'],
+#  ['.', '.', '.', '.', '9', '.', '.', '.', '4'],
+#  ['.', '.', '.', '.', '.', '.', '.', '.', '.'],
+#  ['.', '.', '.', '.', '.', '.', '.', '.', '.'],
+#  ['.', '.', '.', '.', '.', '.', '.', '.', '.'],
+#  ['.', '.', '.', '.', '5', '.', '.', '.', '.'],
+#  ['7', '.', '.', '.', '.', '.', '.', '4', '.']]
 
-# print(solver.solveSudoku(b,maxTime=30))
+
+
+
+# pp(solver.solveSudoku(b,maxTime=30))
 # print("Process finished --- %s seconds ---" % (time() - start_time))
 
 # #TODO 
+# Optimise? switch to str
 # Singleton pattern
+

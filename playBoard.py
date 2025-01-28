@@ -229,5 +229,7 @@ board = Board(b, s)
 
 
 # TODO
+# Make home page
 # Add link back to home page
 # Win popup
+

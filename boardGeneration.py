@@ -2,47 +2,42 @@ from solve import Solver
 from random import randint, choice
 from time import time
 from copy import deepcopy
-# Place a certain amount of random numbers in grid
-# Solve
-# Remove 4 at a time from the start, then closer to the end only 2 at a time. check for more then one solution after each set of removal
-# If ever more then one solution, undo move
-# Before checking the solution count check if it conforms to certain rules. at least 8 unique nums. + distabuition rules
+from pprint import pp
 
-# If it gets to 27 with these rules being correct, return this
-
-
-
-class GenerateBoard:
+class Generator:
     def __init__(self):
         self.solver = Solver()
 
 
-
-    def digging(self,h,n=11, maxTime=30):
+    # Uses "digging" technique to generate a board with a single solution containing h clues
+    def generate(self,h,n=11, maxTime=30):
         self.board = self.base_solution(n)
         startTime = time()
         rem = 81
 
+        # Not possible to have unique solutions with less then 17 clues
         if h < 17:
             return False
 
         while rem > h:
+            
             i = 0
             tempBoard = deepcopy(self.board)    
             # Remove 4 this itteration
             if rem > 40:
                 remove = min(4, rem-h)
             else:
+            # Remove 2 this itteration
                 remove = min(2, rem-h)
 
             while i < remove:
+
                 x,y = randint(0,8), randint(0,8)
 
-                while tempBoard[x][y] != '.':
+                while tempBoard[x][y] == '.':
                     x,y = randint(0,8), randint(0,8)
                 
                 tempBoard[x][y] = '.'
-
                 i += 1
             
             tempBoard2 = deepcopy(tempBoard)
@@ -54,7 +49,7 @@ class GenerateBoard:
 
 
 
-            # Remove 2 this itteration
+        
 
         
     def candidates(self, i, j):
@@ -74,14 +69,15 @@ class GenerateBoard:
         self.__cols = [set() for _ in range(9)]
         self.__sqr = [[set() for _ in range(3)] for _ in range(3)]
         #Populate start of board
-        i = 0
 
+        i = 0
         while i < n:
             x,y = randint(0,8), randint(0,8)
 
             if self.__board[x][y] == '.':
                 i += 1
                 cand = self.candidates(x,y)
+                # print(cand)
 
                 if len(cand) == 0:
                     return self.base_solution(n)
@@ -91,28 +87,38 @@ class GenerateBoard:
                 self.__cols[y].add(rand)
                 self.__sqr[x//3][y//3].add(rand)
                 self.__board[x][y] = str(rand)
-
         # If the board has no solution then it will call recurisvly 
         # Edits board in memory so completed board is returned 
-        if not self.solver.solveSudoku(self.__board,maxTime=2)[1]:
-            return self.base_solution(n)
+
+        res = self.solver.solveSudoku(self.__board)[1]
+        if res:
+            return res
+        return self.base_solution(n)
+
+
         
-        return self.__board
+
+
+
+# boardGen = Generator()
 
 
 
 
 
-boardGen = GenerateBoard()
-
-
-
-
-start_time = time()
-borad = boardGen.digging(30)
-print("Process finished --- %s seconds ---" % (time() - start_time))
-print(borad)
+# start_time = time()
+# board = boardGen.generate(17)
+# print("Process finished --- %s seconds ---" % (time() - start_time))
+# pp(board)
+# pp(boardGen.solver.solveSudoku(board))
 
 # TODO 
-# create method for digging 
+# Add timeout to board gen
 # Singleton pattern
+
+
+
+# Overal TODO
+# Create main page
+# the main page will call the playBoard page - giving it a board it will get from board generation, and a solution it will get from the solve part
+# add a win screen
