@@ -20,6 +20,9 @@ class Generator:
             return False
 
         while rem > h:
+            if time() - startTime > maxTime:
+                return self.generate(h,n,maxTime)
+            
             
             i = 0
             tempBoard = deepcopy(self.board)    
@@ -107,18 +110,7 @@ class Generator:
 
 
 # start_time = time()
-# board = boardGen.generate(17)
+# board = boardGen.generate(17,maxTime=2)
 # print("Process finished --- %s seconds ---" % (time() - start_time))
 # pp(board)
 # pp(boardGen.solver.solveSudoku(board))
-
-# TODO 
-# Add timeout to board gen
-# Singleton pattern
-
-
-
-# Overal TODO
-# Create main page
-# the main page will call the playBoard page - giving it a board it will get from board generation, and a solution it will get from the solve part
-# add a win screen

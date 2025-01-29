@@ -116,5 +116,4 @@ class Solver:
 
 # #TODO 
 # Optimise? switch to str
-# Singleton pattern
 

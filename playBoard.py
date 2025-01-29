@@ -1,8 +1,8 @@
 from tkinter import *
+from tkinter import messagebox
 from PIL import ImageTk, Image
 from collections import deque
 from random import randint
-
 
 class Board:
     def __init__(self, BOARD, SOLUTION):
@@ -35,8 +35,8 @@ class Board:
             Image.open(self.path + 'hint.png').resize((32, 32)))
         self.imgIcon = ImageTk.PhotoImage(
             Image.open(self.path + 'icon.jpg'))
-        self.imgBack = ImageTk.PhotoImage(
-            Image.open(self.path + 'back.png').resize((32, 32)))
+        self.imgClose = ImageTk.PhotoImage(
+            Image.open(self.path + 'close.png').resize((32, 32)))
 
         # Root asset declarations
         self.bUndo = Button(self.root, image=self.imgUndo,
@@ -44,7 +44,7 @@ class Board:
         self.bHint = Button(self.root, image=self.imgHint, command=self.hint)
         self.bCheck = Button(self.root, text="Check",
                              command=self.check, width=35, height=2)
-        self.bBack = Button(self.root, image=self.imgBack, command=self.back)
+        self.bClose = Button(self.root, image=self.imgClose, command=self.close)
         self.bClear = Button(self.root, text="Clear",
                              command=self.clear, width=25)
 
@@ -61,7 +61,7 @@ class Board:
         self.bUndo.grid(row=0, column=3)
         self.bHint.grid(row=0, column=4)
         self.bCheck.grid(row=2, column=1)
-        self.bBack.grid(row=0, column=0)
+        self.bClose.grid(row=0, column=0)
         self.bClear.grid(row=0, column=1, columnspan=2)
 
         # Game board placements
@@ -82,10 +82,11 @@ class Board:
         self.grid[i][j].insert(0, self.SOLUTION[i][j])
         self.grid[i][j].config(state='readonly')
 
-    # Need to do after main page
 
-    def back(self):
-        pass
+    def close(self):
+        self.root.destroy()
+        # menu = Menu()
+        
 
     def clear(self):
         for i in range(9):
@@ -113,7 +114,6 @@ class Board:
         rows = [{} for _ in range(9)]
         cols = [{} for _ in range(9)]
         squares = [[{} for _ in range(3)]for __ in range(3)]
-
         self.colour_clear()
         board = self.get_board()
 
@@ -150,8 +150,10 @@ class Board:
                     self.grid[i][j].config(bg='red')
 
         if board == self.SOLUTION:
-            print(1)
-            # Bring popup screen with option to go back to main menue
+            messagebox.showinfo("You have won the game", "Congratulations, you have won the game")
+            self.root.destroy()
+            # Add popup window to say you have won the game
+            # If you press 'ok' the game closes
 
     # Declares all grid square. Uses factory pattern to ensure all instances are unique.
     def initalise_grid(self):
@@ -220,16 +222,10 @@ class Board:
             r += 1
 
 
-b = [["5", "3", ".", ".", "7", ".", ".", ".", "."], ["6", ".", ".", "1", "9", "5", ".", ".", "."], [".", "9", "8", ".", ".", ".", ".", "6", "."], ["8", ".", ".", ".", "6", ".", ".", ".", "3"], ["4", ".", ".", "8",
-                                                                                                                                                                                                  ".", "3", ".", ".", "1"], ["7", ".", ".", ".", "2", ".", ".", ".", "6"], [".", "6", ".", ".", ".", ".", "2", "8", "."], [".", ".", ".", "4", "1", "9", ".", ".", "5"], [".", ".", ".", ".", "8", ".", ".", "7", "9"]]
-s = [["5", "3", "4", "6", "7", "8", "9", "1", "2"], ["6", "7", "2", "1", "9", "5", "3", "4", "8"], ["1", "9", "8", "3", "4", "2", "5", "6", "7"], ["8", "5", "9", "7", "6", "1", "4", "2", "3"], ["4", "2", "6", "8",
-                                                                                                                                                                                                  "5", "3", "7", "9", "1"], ["7", "1", "3", "9", "2", "4", "8", "5", "6"], ["9", "6", "1", "5", "3", "7", "2", "8", "4"], ["2", "8", "7", "4", "1", "9", "6", "3", "5"], ["3", "4", "5", "2", "8", "6", "1", "7", "9"]]
+# b = [["5", "3", ".", ".", "7", ".", ".", ".", "."], ["6", ".", ".", "1", "9", "5", ".", ".", "."], [".", "9", "8", ".", ".", ".", ".", "6", "."], ["8", ".", ".", ".", "6", ".", ".", ".", "3"], ["4", ".", ".", "8",
+#                                                                                                                                                                                                   ".", "3", ".", ".", "1"], ["7", ".", ".", ".", "2", ".", ".", ".", "6"], [".", "6", ".", ".", ".", ".", "2", "8", "."], [".", ".", ".", "4", "1", "9", ".", ".", "5"], [".", ".", ".", ".", "8", ".", ".", "7", "9"]]
+# s = [["5", "3", "4", "6", "7", "8", "9", "1", "2"], ["6", "7", "2", "1", "9", "5", "3", "4", "8"], ["1", "9", "8", "3", "4", "2", "5", "6", "7"], ["8", "5", "9", "7", "6", "1", "4", "2", "3"], ["4", "2", "6", "8",
+#                                                                                                                                                                                                   "5", "3", "7", "9", "1"], ["7", "1", "3", "9", "2", "4", "8", "5", "6"], ["9", "6", "1", "5", "3", "7", "2", "8", "4"], ["2", "8", "7", "4", "1", "9", "6", "3", "5"], ["3", "4", "5", "2", "8", "6", "1", "7", "9"]]
 
-board = Board(b, s)
-
-
-# TODO
-# Make home page
-# Add link back to home page
-# Win popup
+# board = Board(b, s)
 
