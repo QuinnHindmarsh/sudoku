@@ -26,7 +26,7 @@ The front end is created using TKinter, a python standard library GUI library. T
 - Implement algorithm to determine difficulty of the board based on factors such as techniques required to solve, clue amount and clue distribution.
 - Improve generation algorithm by including factors such as symmetry and distribution.
 - Implement controller class to allow for navigation to main menu from play board.
-- Optimise solver algorithm.
+- Further optimise solver algorithm.
 
 ## How to play
 1. Download the whole project.
