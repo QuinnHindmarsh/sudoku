@@ -66,7 +66,10 @@ class Generator:
 
     
     def base_solution(self,n):
-        # This will be inacurate after recursion
+        if n > 25 or n <= -1:
+            return [[]]
+
+        
         self.__board = [['.'] * 9 for _ in range(9)]
         self.__rows = [set() for _ in range(9)]
         self.__cols = [set() for _ in range(9)]
@@ -103,14 +106,14 @@ class Generator:
 
 
 
-# boardGen = Generator()
+boardGen = Generator()
 
 
 
 
 
 # start_time = time()
-# board = boardGen.generate(17,maxTime=2)
+# board = boardGen.base_solution(25)
 # print("Process finished --- %s seconds ---" % (time() - start_time))
 # pp(board)
-# pp(boardGen.solver.solveSudoku(board))
+
